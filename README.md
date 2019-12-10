@@ -22,5 +22,9 @@
 
 1. tetris_ascii_frame.py  
     ASCII俄罗斯方块-帧更新版  
-    相对于tetris_ascii.py增加实现了基于帧更新的实时游戏逻辑  
+    相对于tetris_ascii.py增加实现了 __基于帧更新__ 的实时游戏逻辑  
     在加速下落事件上操作更流畅
+
+1. tetris_ascii_versus.py  
+    ASCII俄罗斯方块-对战版  
+    在tetris_ascii_frame.py基础上增加了双人对战、 __向对手场地添加行__ 的功能

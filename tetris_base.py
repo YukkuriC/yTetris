@@ -92,7 +92,7 @@ class TetrisLogic:
     def reset(self):
         """ 开局 """
         self.running = True  # 玩家尚未死亡
-        self.paused = False # 暂停模式，屏蔽玩家操作
+        self.paused = False  # 暂停模式，屏蔽玩家操作
         self.pool = [[0] * self.width
                      for _ in range(self.height + 1)]  # 游戏场地，顶行用于判断死亡
         self.curr_block = None  # 当前方块
@@ -102,6 +102,10 @@ class TetrisLogic:
         # 生成方块序列
         self.block_seq = RandSeq(Block.get, self.seed)
         self.next_block = [self.block_seq.pop(), self.block_seq.pop()]
+
+        # 底部出行序列
+        self.grow_seq = RandSeq(
+            lambda:[random.random() > 0.3 for i in range(self.width)], self.seed)
 
     def try_move(self, new_pos):
         """ 判断方块下个位置是否可移动 """
@@ -168,6 +172,13 @@ class TetrisLogic:
             return
         self.next_block = self.next_block[::-1]
         self.event_draw()
+
+    def event_add_line(self):
+        """ 底部添加随机行 """
+        self.pool.insert(0, self.grow_seq.pop())
+        self.pool.pop()
+        if self.curr_block:
+            self.curr_block.y += 1
 
     def event_draw(self, *a):
         """ 绘图事件 """
