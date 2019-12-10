@@ -77,10 +77,16 @@ class TetrisGame:
         self.tk.bind("<w>", self.logic.control_rotate)
         self.tk.bind("<a>", self.logic.control_left)
         self.tk.bind("<d>", self.logic.control_right)
-        self.tk.bind("<KeyPress-s>", self.logic.control_speedup)
+        self.tk.bind("<s>", self.logic.control_speedup)
         self.tk.bind("<KeyRelease-s>", self.logic.control_speeddown)
+        self.tk.bind("<Up>", self.logic.control_rotate)
+        self.tk.bind("<Left>", self.logic.control_left)
+        self.tk.bind("<Right>", self.logic.control_right)
+        self.tk.bind("<Down>", self.logic.control_speedup)
+        self.tk.bind("<KeyRelease-Down>", self.logic.control_speeddown)
 
         # 启动主循环
+        self.draw()
         self.tk.mainloop()
 
     def draw(self):
@@ -101,9 +107,12 @@ class TetrisGame:
         self.board['text'] = '\n'.join(lines)
 
         # hud
-        self.hud[
-            'text'] = f'score:{self.logic.score} next:{"+".join(x.type for x in self.logic.next_block)}'
-        if not self.logic.running:
+        self.hud['text'] = f'score:{self.logic.score} '
+        if self.logic.running:
+            self.hud['text'] += (
+                f' curr:{self.logic.curr_block and self.logic.curr_block.type}'
+                f' next:{"+".join(x.type for x in self.logic.next_block)}')
+        else:
             self.hud['text'] += ' Game Over'
 
     def start_game(self):
@@ -135,6 +144,7 @@ class TetrisGame:
 
     def toggle_pause(self, *a):
         self.paused = not self.paused
+        self.logic.paused = self.paused
         self.btn_pause['text'] = '继续' if self.paused else '暂停'
         if self.paused:  # 开始记录暂停事件
             self.pause_finished = False

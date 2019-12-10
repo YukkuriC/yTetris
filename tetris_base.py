@@ -92,6 +92,7 @@ class TetrisLogic:
     def reset(self):
         """ 开局 """
         self.running = True  # 玩家尚未死亡
+        self.paused = False # 暂停模式，屏蔽玩家操作
         self.pool = [[0] * self.width
                      for _ in range(self.height + 1)]  # 游戏场地，顶行用于判断死亡
         self.curr_block = None  # 当前方块
@@ -142,27 +143,29 @@ class TetrisLogic:
         return False
 
     def control_left(self, *a):
-        if not self.curr_block:
+        if not self.curr_block or self.paused:
             return
         if self.try_move((self.curr_block.x - 1, self.curr_block.y)):
             self.block_settled = False
             self.event_draw()
 
     def control_right(self, *a):
-        if not self.curr_block:
+        if not self.curr_block or self.paused:
             return
         if self.try_move((self.curr_block.x + 1, self.curr_block.y)):
             self.block_settled = False
             self.event_draw()
 
     def control_rotate(self, *a):
-        if not self.curr_block:
+        if not self.curr_block or self.paused:
             return
         if self.try_rotate():
             self.block_settled = False
             self.event_draw()
 
     def control_swap(self, *a):
+        if self.paused:
+            return
         self.next_block = self.next_block[::-1]
         self.event_draw()
 

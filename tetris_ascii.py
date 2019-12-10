@@ -8,6 +8,7 @@ __doc__ = """ASCII俄罗斯方块
     初步实现 "能玩儿" 目标
 """
 
+
 class TetrisGame:
     def __init__(self, *a, **kw):
         # 参数
@@ -39,16 +40,19 @@ class TetrisGame:
         self.logic = TetrisLogic()
         self.logic.event_draw = self.draw
 
-        for e in "<Up> <Left> <Right> <KeyPress-Down> <KeyRelease-Down>".split(
-        ):
-            self.tk.unbind_all(e)
         self.tk.bind("<Up>", self.logic.control_rotate)
         self.tk.bind("<Left>", self.logic.control_left)
         self.tk.bind("<Right>", self.logic.control_right)
-        self.tk.bind("<KeyPress-Down>", self.speedUp)
+        self.tk.bind("<Down>", self.speedUp)
         self.tk.bind("<KeyRelease-Down>", self.speedDown)
+        self.tk.bind("<w>", self.logic.control_rotate)
+        self.tk.bind("<a>", self.logic.control_left)
+        self.tk.bind("<d>", self.logic.control_right)
+        self.tk.bind("<s>", self.speedUp)
+        self.tk.bind("<KeyRelease-s>", self.speedDown)
 
         # 启动主循环
+        self.draw()
         self.tk.mainloop()
 
     def draw(self):
@@ -69,9 +73,12 @@ class TetrisGame:
         self.board['text'] = '\n'.join(lines)
 
         # hud
-        self.hud[
-            'text'] = f'score:{self.logic.score} next:{"+".join(x.type for x in self.logic.next_block)}'
-        if not self.logic.running:
+        self.hud['text'] = f'score:{self.logic.score} '
+        if self.logic.running:
+            self.hud['text'] += (
+                f' curr:{self.logic.curr_block and self.logic.curr_block.type}'
+                f' next:{"+".join(x.type for x in self.logic.next_block)}')
+        else:
             self.hud['text'] += ' Game Over'
 
     def speedUp(self, *a):
@@ -103,6 +110,7 @@ class TetrisGame:
 
     def toggle_pause(self, *a):
         self.paused = not self.paused
+        self.logic.paused = self.paused
         self.btn_pause['text'] = '继续' if self.paused else '暂停'
 
 
