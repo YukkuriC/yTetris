@@ -56,30 +56,8 @@ class TetrisGame:
         self.tk.mainloop()
 
     def draw(self):
-        lines = ['==' * (1 + self.logic.width)]
-        if not self.logic.running:
-            lines[0] = 'GAME  OVER'.center(2 + 2 * self.logic.width, '=')
-        pool_tmp = [['[]' if x else '  ' for x in self.logic.pool[i]]
-                    for i in range(self.logic.height)]
-        if self.logic.curr_block:
-            for pos in self.logic.curr_block:
-                x = pos[0] + self.logic.curr_block.x
-                y = pos[1] + self.logic.curr_block.y
-                if y >= self.logic.height:
-                    continue
-                pool_tmp[y][x] = '<>'
-        lines.extend(('|%s|' % (''.join(x))) for x in reversed(pool_tmp))
-        lines.append(lines[0])
-        self.board['text'] = '\n'.join(lines)
-
-        # hud
-        self.hud['text'] = f'score:{self.logic.score} '
-        if self.logic.running:
-            self.hud['text'] += (
-                f' curr:{self.logic.curr_block and self.logic.curr_block.type}'
-                f' next:{"+".join(x.type for x in self.logic.next_block)}')
-        else:
-            self.hud['text'] += ' Game Over'
+        self.board['text'] = '\n'.join(self.logic.dump_lines())
+        self.hud['text'] = self.logic.dump_info()
 
     def speedUp(self, *a):
         self.updateStep = 100

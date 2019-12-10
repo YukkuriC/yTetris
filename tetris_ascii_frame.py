@@ -1,47 +1,11 @@
 from tkinter import *
 from tkinter.font import Font
-from tetris_base import TetrisLogic
+from tetris_base import TetrisLogicFrame
 
 __doc__ = """ASCII俄罗斯方块-帧更新版
     相对于tetris_ascii.py增加实现了基于帧更新的实时游戏逻辑
     在加速下落事件上操作更流畅
 """
-
-
-class TetrisLogicFrame(TetrisLogic):
-    """ 按帧更新的俄罗斯方块逻辑 """
-    NFRAME = 10
-    NFRAME_SPEEDUP = 2
-
-    def __init__(self, root, *a, **kw):
-        super().__init__(*a, **kw)
-
-        self.root = root  # 绑定
-        self.is_speedup = False  # 是否处于加速模式
-        self.frame_counter = 0  # 帧更新计数器
-
-    def control_speedup(self, *a):
-        """ 按下加速键 """
-        if not self.is_speedup:  # 初次切换至加速模式时立即下落
-            self.is_speedup = True
-            self.frame_counter = 0
-
-    def control_speeddown(self, *a):
-        """ 松开加速键 """
-        self.is_speedup = False
-
-    def event_update_frame(self):
-        """ 按帧更新游戏逻辑 """
-        self.frame_counter -= 1
-        if self.frame_counter <= 0:
-            self.frame_counter = self.NFRAME
-            if self.is_speedup:
-                self.frame_counter = self.NFRAME_SPEEDUP
-            self.event_update()
-
-    def event_draw(self):
-        """ 绑定游戏窗口的绘制事件 """
-        self.root.draw()
 
 
 class TetrisGame:
@@ -90,30 +54,8 @@ class TetrisGame:
         self.tk.mainloop()
 
     def draw(self):
-        lines = ['==' * (1 + self.logic.width)]
-        if not self.logic.running:
-            lines[0] = 'GAME  OVER'.center(2 + 2 * self.logic.width, '=')
-        pool_tmp = [['[]' if x else '  ' for x in self.logic.pool[i]]
-                    for i in range(self.logic.height)]
-        if self.logic.curr_block:
-            for pos in self.logic.curr_block:
-                x = pos[0] + self.logic.curr_block.x
-                y = pos[1] + self.logic.curr_block.y
-                if y >= self.logic.height:
-                    continue
-                pool_tmp[y][x] = '<>'
-        lines.extend(('|%s|' % (''.join(x))) for x in reversed(pool_tmp))
-        lines.append(lines[0])
-        self.board['text'] = '\n'.join(lines)
-
-        # hud
-        self.hud['text'] = f'score:{self.logic.score} '
-        if self.logic.running:
-            self.hud['text'] += (
-                f' curr:{self.logic.curr_block and self.logic.curr_block.type}'
-                f' next:{"+".join(x.type for x in self.logic.next_block)}')
-        else:
-            self.hud['text'] += ' Game Over'
+        self.board['text'] = '\n'.join(self.logic.dump_lines())
+        self.hud['text'] = self.logic.dump_info()
 
     def start_game(self):
         self.logic.reset()

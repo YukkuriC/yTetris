@@ -1,82 +1,10 @@
 from tkinter import *
 from tkinter.font import Font
-from tetris_base import TetrisLogic
+from tetris_base import TetrisLogicVersus
 
 __doc__ = """ASCII俄罗斯方块-对战版
     在tetris_ascii_frame.py基础上增加了双人对战、向对手场地添加行的功能
 """
-
-
-class TetrisLogicVersus(TetrisLogic):
-    """ 按帧更新的俄罗斯方块逻辑 """
-    NFRAME = 10
-    NFRAME_SPEEDUP = 2
-
-    def __init__(self, root, *a, **kw):
-        super().__init__(*a, **kw)
-
-        self.root = root  # 绑定
-        self.is_speedup = False  # 是否处于加速模式
-        self.frame_counter = 0  # 帧更新计数器
-        self.opponent = None  # 对手游戏逻辑
-
-    def control_speedup(self, *a):
-        """ 按下加速键 """
-        if not self.is_speedup:  # 初次切换至加速模式时立即下落
-            self.is_speedup = True
-            self.frame_counter = 0
-
-    def control_speeddown(self, *a):
-        """ 松开加速键 """
-        self.is_speedup = False
-
-    def event_update_frame(self):
-        """ 按帧更新游戏逻辑 """
-        self.frame_counter -= 1
-        if self.frame_counter <= 0:
-            self.frame_counter = self.NFRAME
-            if self.is_speedup:
-                self.frame_counter = self.NFRAME_SPEEDUP
-            self.event_update()
-
-    def event_draw(self):
-        """ 绑定游戏窗口的绘制事件 """
-        self.root.draw()
-
-    def event_clear(self, n):
-        super().event_clear(n)
-        if self.opponent:
-            for i in range(n * 2 - 1):
-                self.opponent.event_add_line()
-
-    def dump_lines(self):
-        """ 将游戏场地逐行返回为字符串列表 """
-        lines = ['==' * (1 + self.width)]
-        if not self.running:
-            lines[0] = 'GAME  OVER'.center(2 + 2 * self.width, '=')
-        pool_tmp = [['[]' if x else '  ' for x in self.pool[i]]
-                    for i in range(self.height)]
-        if self.curr_block:
-            for pos in self.curr_block:
-                x = pos[0] + self.curr_block.x
-                y = pos[1] + self.curr_block.y
-                if y >= self.height:
-                    continue
-                pool_tmp[y][x] = '<>'
-        lines.extend(('|%s|' % (''.join(x))) for x in reversed(pool_tmp))
-        lines.append(lines[0])
-
-        return lines
-
-    def dump_info(self):
-        """ 返回当前游戏状态说明文字 """
-        res = f'score:{self.score}'
-        if self.running:
-            res += (f' curr:{self.curr_block and self.curr_block.type}'
-                    f' next:{"+".join(x.type for x in self.next_block)}')
-        else:
-            res += ' Game Over'
-        return res
 
 
 class TetrisGame:

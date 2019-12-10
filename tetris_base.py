@@ -76,7 +76,43 @@ class Block:
         yield from self.outers
 
 
-class TetrisLogic:
+class TetrisDraw:
+    """
+    游戏绘制类
+    dump_*: 输出文本
+    """
+
+    def dump_lines(self):
+        """ 将游戏场地逐行返回为字符串列表 """
+        lines = ['==' * (1 + self.width)]
+        if not self.running:
+            lines[0] = 'GAME  OVER'.center(2 + 2 * self.width, '=')
+        pool_tmp = [['[]' if x else '  ' for x in self.pool[i]]
+                    for i in range(self.height)]
+        if self.curr_block:
+            for pos in self.curr_block:
+                x = pos[0] + self.curr_block.x
+                y = pos[1] + self.curr_block.y
+                if y >= self.height:
+                    continue
+                pool_tmp[y][x] = '<>'
+        lines.extend(('|%s|' % (''.join(x))) for x in reversed(pool_tmp))
+        lines.append(lines[0])
+
+        return lines
+
+    def dump_info(self):
+        """ 返回当前游戏状态说明文字 """
+        res = f'score:{self.score}'
+        if self.running:
+            res += (f' curr:{self.curr_block and self.curr_block.type}'
+                    f' next:{"+".join(x.type for x in self.next_block)}')
+        else:
+            res += ' Game Over'
+        return res
+
+
+class TetrisLogic(TetrisDraw):
     """
     游戏逻辑类
     try_*: 尝试移动方块
@@ -105,7 +141,8 @@ class TetrisLogic:
 
         # 底部出行序列
         self.grow_seq = RandSeq(
-            lambda:[random.random() > 0.3 for i in range(self.width)], self.seed)
+            lambda: [random.random() > 0.3 for i in range(self.width)],
+            self.seed)
 
     def try_move(self, new_pos):
         """ 判断方块下个位置是否可移动 """
@@ -236,6 +273,66 @@ class TetrisLogic:
     def event_end(self):
         """ 游戏结束事件 """
         pass
+
+
+class TetrisLogicFrame(TetrisLogic):
+    """ 按帧更新的俄罗斯方块逻辑 """
+    NFRAME = 10
+    NFRAME_SPEEDUP = 1
+
+    def __init__(self, root, *a, **kw):
+        super().__init__(*a, **kw)
+
+        self.root = root  # 绑定
+        self.is_speedup = False  # 是否处于加速模式
+        self.frame_counter = 0  # 帧更新计数器
+
+    def control_speedup(self, *a):
+        """ 按下加速键 """
+        if not self.is_speedup:  # 初次切换至加速模式时立即下落
+            self.is_speedup = True
+            self.frame_counter = 0
+
+    def control_speeddown(self, *a):
+        """ 松开加速键 """
+        self.is_speedup = False
+
+    def event_update_frame(self):
+        """ 按帧更新游戏逻辑 """
+        self.frame_counter -= 1
+        if self.frame_counter <= 0:
+            self.frame_counter = self.NFRAME
+            if self.is_speedup:
+                self.frame_counter = self.NFRAME_SPEEDUP
+            self.event_update()
+
+    def event_draw(self):
+        """ 绑定游戏窗口的绘制事件 """
+        self.root.draw()
+
+
+class TetrisLogicVersus(TetrisLogicFrame):
+    """ 按帧更新的俄罗斯方块逻辑 对战版 """
+
+    def __init__(self, root, score_per_line=10, *a, **kw):
+        super().__init__(root, *a, **kw)
+
+        self.opponent = None  # 对手游戏逻辑
+        self.score_counter = 0
+        self.dscore = score_per_line
+
+    def event_clear(self, n):
+        """
+        根据得分给对方场地添加新行
+        多重消除增加更多行
+        """
+        super().event_clear(n)
+        if self.opponent:
+            for i in range(n - 1):
+                self.opponent.event_add_line()
+            while self.score_counter + self.dscore < self.score:
+                self.score_counter += self.dscore
+                self.opponent.event_add_line()
 
 
 if __name__ == '__main__':
