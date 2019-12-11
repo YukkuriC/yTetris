@@ -354,6 +354,9 @@ class TetrisAI:
     由TetrisLogicAuto类
     """
 
+    def __init__(self, width, height):
+        """ 初始化接收场地宽高 """
+
     def evaluate(self, block, pool):
         """
         AI执行接口
@@ -372,7 +375,7 @@ class TetrisLogicAuto(TetrisLogicVersus):
 
     NFRAME_AI = 5
 
-    def __init__(self, AI, *a, **kw):
+    def __init__(self, AI_class, *a, **kw):
         super().__init__(*a, **kw)
 
         self.OPERATIONS = {# 操作功能
@@ -383,7 +386,7 @@ class TetrisLogicAuto(TetrisLogicVersus):
             'n': self.control_speeddown,
             'p':self.control_swap,
         }
-        self.AI = AI  # 自动控制模块
+        self.AI = AI_class(self.width, self.height)  # 自动控制模块
         self.ai_frame_counter = 0  # AI帧计数器
 
     def event_update_frame(self):

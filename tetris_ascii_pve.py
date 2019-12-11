@@ -50,7 +50,7 @@ class TetrisGame:
         self.tk.bind("<KeyRelease-Down>", self.logic.control_speeddown)
 
         # 绑定游戏操作 玩家2(AI)
-        self.logic2 = TetrisLogicAuto(RandomDumb(), self)
+        self.logic2 = TetrisLogicAuto(RandomDumb, self)
 
         # 玩家间绑定对手
         self.logic.opponent = self.logic2

@@ -5,7 +5,7 @@ import random
 class RandomDumb(TetrisAI):
     """ 随机操作AI，用于演示各操作符功能 """
 
-    def __init__(self):
+    def __init__(self, width, height):
         self.is_speedup = False
 
     def evaluate(self, *a, **kw):
