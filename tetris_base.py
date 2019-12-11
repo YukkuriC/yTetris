@@ -58,7 +58,7 @@ class Block:
     def rotate(self, back=False):
         if self.type == 'O':  # 2*2不旋转
             return
-        if self.type in 'IZS' and (self.phase ^ back):  # 中心对称方块
+        if self.type in 'IZS' and not (self.phase ^ back):  # 中心对称方块
             back = not back
 
         if back:  # 正旋转
@@ -73,7 +73,7 @@ class Block:
     def copy(self):
         """ 复制当前块 """
         block = Block(self.BLOCK_NAMES.index(self.type))
-        while block.phase < self.phase:
+        while block.phase != self.phase:
             block.rotate()
         block.x, block.y = self.x, self.y
         return block
