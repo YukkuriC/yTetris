@@ -400,7 +400,7 @@ class TetrisLogicAuto(TetrisLogicVersus):
                 event = self.AI.evaluate(self.curr_block
                                          and self.curr_block.copy(),
                                          [x[:] for x in self.pool])
-                for e in event:
+                for e in set(event):
                     e = self.OPERATIONS.get(e)
                     if e:
                         e()
