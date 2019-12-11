@@ -221,7 +221,7 @@ class TetrisLogic(TetrisDraw):
     def event_add_line(self):
         """ 底部添加随机行 """
         tmp = self.grow_seq.pop()
-        while not any(tmp):  # 防止生成空行
+        while not 0 < sum(tmp) < self.width:  # 防止生成空行/满行
             tmp = self.grow_seq.pop()
         self.pool.insert(0, tmp)
         self.pool.pop()
@@ -330,7 +330,7 @@ class TetrisLogicVersus(TetrisLogicFrame):
 
         self.opponent = None  # 对手游戏逻辑
         self.score_counter = 0
-        self.dscore = score_per_line
+        self.dscore = max(score_per_line, 1)
 
     def event_clear(self, n):
         """
@@ -341,7 +341,7 @@ class TetrisLogicVersus(TetrisLogicFrame):
         if self.opponent:
             for i in range(n - 1):
                 self.opponent.event_add_line()
-            while self.score_counter + self.dscore < self.score:
+            while self.score_counter + self.dscore <= self.score:
                 self.score_counter += self.dscore
                 self.opponent.event_add_line()
 
@@ -405,7 +405,6 @@ class TetrisLogicAuto(TetrisLogicVersus):
                     if e:
                         e()
             except Exception as e:
-                raise
                 print(f'AI ERROR|{type(e).__name__}: {e}')
 
     def event_clear(self, n):
