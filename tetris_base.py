@@ -70,6 +70,14 @@ class Block:
 
         self.phase %= 4
 
+    def copy(self):
+        """ 复制当前块 """
+        block = Block(self.BLOCK_NAMES.index(self.type))
+        while block.phase < self.phase:
+            block.rotate()
+        block.x, block.y = self.x, self.y
+        return block
+
     def __iter__(self):
         """ 迭代获取所有块相对中心位置偏移 """
         yield (0, 0)
@@ -333,6 +341,71 @@ class TetrisLogicVersus(TetrisLogicFrame):
             while self.score_counter + self.dscore < self.score:
                 self.score_counter += self.dscore
                 self.opponent.event_add_line()
+
+
+### AI接口
+
+
+class TetrisAI:
+    """俄罗斯方块AI接口
+    由TetrisLogicAuto类
+    """
+
+    def evaluate(self, block, pool):
+        """
+        AI执行接口
+        block: 当前方块的副本
+        pool: 当前游戏场地的副本
+        """
+
+    def event_clear(self, n):
+        """ 消除行时通知事件 """
+
+
+class TetrisLogicAuto(TetrisLogicVersus):
+    """按帧更新的俄罗斯方块逻辑 自动控制版
+    通过接入并定时调用AI接口实现控制游戏运行
+    """
+
+    NFRAME_AI = 5
+
+    def __init__(self, AI, *a, **kw):
+        super().__init__(*a, **kw)
+
+        self.OPERATIONS = {# 操作功能
+            'a': self.control_left,
+            'd': self.control_right,
+            'w': self.control_rotate,
+            's': self.control_speedup,
+            'n': self.control_speeddown,
+            'p':self.control_swap,
+        }
+        self.AI = AI  # 自动控制模块
+        self.ai_frame_counter = 0  # AI帧计数器
+
+    def event_update_frame(self):
+        """ 按帧更新AI """
+        super().event_update_frame()
+
+        self.ai_frame_counter -= 1
+        if self.ai_frame_counter <= 0:
+            self.ai_frame_counter = self.NFRAME_AI
+            try:
+                event = self.AI.evaluate(self.curr_block
+                                         and self.curr_block.copy(),
+                                         [x[:] for x in self.pool])
+                for e in event:
+                    e = self.OPERATIONS.get(e)
+                    if e:
+                        e()
+            except Exception as e:
+                raise
+                print(f'AI ERROR|{type(e).__name__}: {e}')
+
+    def event_clear(self, n):
+        """ 通知AI行消除 """
+        super().event_clear(n)
+        self.AI.event_clear(n)
 
 
 if __name__ == '__main__':

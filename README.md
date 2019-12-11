@@ -13,18 +13,30 @@
     1. #### 随机序列生成器`RandSeq`
     1. #### 方块类`Block`
     1. #### 游戏逻辑类`TetrisLogic`
+    1. #### 游戏逻辑类`TetrisLogicFrame`
+    1. #### 游戏逻辑类`TetrisLogicVersus`
+    1. #### AI接口类`TetrisAI`
+    1. #### AI游戏逻辑类`TetrisLogicAuto`
 
 ## 游戏实现
-1. tetris_ascii.py  
+1. `tetris_ascii.py`  
     基于tkinter模块实现的单人俄罗斯方块游戏  
     更新逻辑使用Tk.after事件实现  
     初步实现 __能玩儿__ 目标
 
-1. tetris_ascii_frame.py  
+1. `tetris_ascii_frame.py`  
     ASCII俄罗斯方块-帧更新版  
-    相对于tetris_ascii.py增加实现了 __基于帧更新__ 的实时游戏逻辑  
+    相对于`tetris_ascii.py`增加实现了 __基于帧更新__ 的实时游戏逻辑  
     在加速下落事件上操作更流畅
 
-1. tetris_ascii_versus.py  
+1. `tetris_ascii_versus.py`  
     ASCII俄罗斯方块-对战版  
-    在tetris_ascii_frame.py基础上增加了双人对战、 __向对手场地添加行__ 的功能
+    在`tetris_ascii_frame.py`基础上增加了双人对战、 __向对手场地添加行__ 的功能
+
+1. `tetris_ascii_pve.py`  
+    ASCII俄罗斯方块-人机对战版  
+    在`tetris_ascii_versus.py`基础上实现了人机对战、 __AI接口__ 功能
+
+## 其它
+1. `tetris_ai_examples.py`  
+    预置的示例AI实现
