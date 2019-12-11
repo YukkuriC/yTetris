@@ -166,3 +166,64 @@ class PierreDellacherie(TetrisAI):
         # 返回估值
         erodedPieceCellsMetric = ero1 * ero2
         return -45 * landingHeight + 34 * erodedPieceCellsMetric - 32 * boardRowTransitions - 93 * boardColTransitions - 79 * boardBuriedHoles - 34 * boardWells
+
+
+class PDFast(PierreDellacherie):
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+
+        # 状态量
+        # 0: 待评估场地
+        # 1: 已评估，待执行动作
+        # 2: 动作执行完毕，待加速
+        # 3: 加速完毕，需减速评估场地
+        self.phase = 0
+
+        # 动作队列
+        self.hmove = self.hcount = 0  # 平移
+        self.rcount = 0  # 旋转
+
+    def evaluate(self, block, pool):
+        if not block:
+            return ''
+
+        print(self.phase, self.hmove, self.hcount, self.rcount)
+
+        res = ''  # 本回合输出的操作
+
+        if self.phase == 3:  # 减速
+            res += 'n'
+            self.phase = 0
+
+        if self.phase == 0:  # 评估场地生成动作序列
+
+            mblock = self.get_best_drop(block, pool)
+
+            # 计算动作
+            self.hmove = 'ad' [mblock.x > block.x]
+            self.hcount = abs(mblock.x - block.x)
+            self.rcount = (block.phase - mblock.phase) % 4
+            if block.type in 'IZS':
+                self.rcount %= 2
+            self.phase = 1
+
+        if self.phase == 1 and block.y < self.height:  # 按动作队列输出
+            if self.hcount > 0:
+                self.hcount -= 1
+                res += self.hmove
+            if self.rcount > 0:
+                res += 'w'
+                self.rcount -= 1
+
+            # 空队列时状态转移
+            if self.rcount + self.hcount == 0:
+                self.phase = 2
+
+        if self.phase == 2:  # 加速
+            res += 's'
+
+        return res
+
+    def event_clear(self, n):
+        """ 结束加速，返回评估态 """
+        self.phase = 3

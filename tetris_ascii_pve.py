@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter.font import Font
 from tetris_base import TetrisLogicVersus, TetrisLogicAuto
-from tetris_ai_examples import PierreDellacherie
+from tetris_ai_examples import PierreDellacherie, PDFast
 
 __doc__ = """ASCII俄罗斯方块-人机对战版
     在tetris_ascii_versus.py基础上实现了人机对战、AI接口功能
@@ -50,7 +50,7 @@ class TetrisGame:
         self.tk.bind("<KeyRelease-Down>", self.logic.control_speeddown)
 
         # 绑定游戏操作 玩家2(AI)
-        self.logic2 = TetrisLogicAuto(PierreDellacherie, self)
+        self.logic2 = TetrisLogicAuto(PDFast, self)
 
         # 玩家间绑定对手
         self.logic.opponent = self.logic2
