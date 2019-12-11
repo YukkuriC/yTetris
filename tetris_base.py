@@ -412,10 +412,3 @@ class TetrisLogicAuto(TetrisLogicVersus):
         """ 通知AI行消除 """
         super().event_clear(n)
         self.AI.event_clear(n)
-
-
-if __name__ == '__main__':
-    tmp = RandSeq(lambda: random.randrange(7))
-    tmp2 = RandSeq(lambda: random.randrange(7))
-    print(*(tmp.pop() for i in range(30)))
-    print(*(tmp2.pop() for i in range(30)))
