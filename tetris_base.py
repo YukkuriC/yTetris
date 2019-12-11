@@ -220,7 +220,10 @@ class TetrisLogic(TetrisDraw):
 
     def event_add_line(self):
         """ 底部添加随机行 """
-        self.pool.insert(0, self.grow_seq.pop())
+        tmp = self.grow_seq.pop()
+        while not any(tmp):  # 防止生成空行
+            tmp = self.grow_seq.pop()
+        self.pool.insert(0, tmp)
         self.pool.pop()
         if self.curr_block:
             self.curr_block.y += 1
